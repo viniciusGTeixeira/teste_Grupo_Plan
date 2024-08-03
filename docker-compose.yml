@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-app
+    volumes:
+      - ./laravel-app:/app
+    ports:
+      - "9001:9000"
+    working_dir: /app
+    command: php-fpm
+    environment:
+      - COMPOSER_ALLOW_SUPERUSER=1
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./laravel-app:/app
+    networks:
+      - app-network
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  dbdata:

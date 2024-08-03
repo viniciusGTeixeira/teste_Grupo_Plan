@@ -1,0 +1,24 @@
+# Use uma imagem base com PHP-FPM
+FROM php:7.4-fpm
+
+# Instale as dependências do sistema e o Composer
+USER root
+RUN apt-get update && \
+    apt-get install -y \
+    unzip \
+    curl \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+WORKDIR /var/www
+
+# Copie o código da aplicação para o contêiner
+COPY laravel-app/ /var/www/
+
+# Instale as dependências PHP
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Exponha a nova porta
+EXPOSE 9000
+
+# Comando para iniciar o PHP-FPM
+CMD ["php-fpm"]
